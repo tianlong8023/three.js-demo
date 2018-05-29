@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>three.js</title>
+    <style>
+        body{margin: 0;overflow: hidden;}
+    </style>
+</head>
+<body>
+<script type="text/javascript" src="js/three.js"></script>
+<script>
+    var renderer, scene, camera, light;
+    var INTERSECTED;
+    var raycaster;
+    var mouse;
+    var intersects = [];
+
+    function init() {
+        renderer = new THREE.WebGLRenderer({
+            antialias: true
+        });
+        renderer.setClearColor(0xffffff);
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        scene = new THREE.Scene();
+        camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.lookAt(new THREE.Vector3(20, 0, 20));
+        camera.position.set(-100, 25, -100);
+        light = new THREE.AmbientLight(0xffffff);
+        scene.add(light);
+        document.body.appendChild(renderer.domElement);
+        raycaster = new THREE.Raycaster();
+        mouse = new THREE.Vector2();
+        document.addEventListener('mousemove', onDocumentMouseMove, false);
+        creatCube();
+        render();
+    }
+
+    function onDocumentMouseMove(event) {
+        event.preventDefault();
+        mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+        mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+    }
+
+    function creatCube() {
+        for (var i = 0; i < 50; i++) {
+            var geometry = new THREE.CubeGeometry(4, 4, 4);
+            var material = new THREE.MeshBasicMaterial({
+                color: Math.random() * 0xffffff,
+                opacity: 0.5
+            });
+            var mesh = new THREE.Mesh(geometry, material);
+            mesh.position.x = Math.random() * 100 - 10;
+            mesh.position.y = Math.random() * 100 - 10;
+            mesh.position.z = Math.random() * 100 - 10;
+            scene.add(mesh);
+        }
+    }
+
+    function render() {
+        requestAnimationFrame(render);
+        renderer.render(scene, camera);
+        raycaster.setFromCamera(mouse, camera);
+        var intersects = raycaster.intersectObjects(scene.children);
+        if (intersects.length > 0) {
+            if (INTERSECTED != intersects[0].object) {
+                if (INTERSECTED) INTERSECTED.material.color.setHex(INTERSECTED.currentHex);
+                INTERSECTED = intersects[0].object;
+                INTERSECTED.currentHex = INTERSECTED.material.color.getHex();
+                INTERSECTED.material.color.set(0xff0000);
+            }
+        } else {
+            if (INTERSECTED) INTERSECTED.material.color.set(INTERSECTED.currentHex);
+            INTERSECTED = null;
+        }
+    }
+    init();
+</script>
+</body>
+
+</html>  

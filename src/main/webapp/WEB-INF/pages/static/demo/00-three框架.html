@@ -1,0 +1,102 @@
+﻿<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>Three框架</title>
+        <script type="text/javascript" src="js/three.js"></script>
+		<style type="text/css">
+			div#canvas-frame {
+				border: none;
+				cursor: pointer;
+				width: 100%;
+				height: 600px;
+				background-color: #EEEEEE;
+			}
+
+		</style>
+		<script>
+		
+			//渲染器
+            var renderer;
+			var canvasWidth;
+			var canvasHeight;
+            function initThree() {
+				var canvas = document.getElementById('canvas-frame');
+                canvasWidth = canvas.clientWidth;
+                canvasHeight = canvas.clientHeight;
+                renderer = new THREE.WebGLRenderer({
+                    antialias : true
+                });
+                renderer.setSize(canvasWidth, canvasHeight);
+                canvas.appendChild(renderer.domElement);
+                renderer.setClearColor(0xFFFFFF, 1.0);
+            }
+
+			//相机
+            var camera;
+            function initCamera() {
+                camera = new THREE.PerspectiveCamera(45, canvasWidth / canvasHeight, 1, 10000);
+                camera.position.set(0 , 1000, 0);
+                camera.up.set(0, 0, 1);
+                camera.lookAt(new THREE.Vector3(0, 0, 0));
+				
+            }
+
+			//场景
+            var scene;
+            function initScene() {
+                scene = new THREE.Scene();
+            }
+
+			//光源
+            var light;
+            function initLight() {
+                light = new THREE.DirectionalLight(0xFF0000, 1.0, 0);
+                light.position.set(100, 100, 200);
+                scene.add(light);
+            }
+
+			//景色
+            var cube;
+            function initObject() {
+
+                var geometry = new THREE.Geometry();
+                var material = new THREE.LineBasicMaterial( { vertexColors: THREE.VertexColors} );
+                var color1 = new THREE.Color( 0x444444 ), color2 = new THREE.Color( 0xFF0000 );
+
+                // 线的材质可以由2点的颜色决定
+                var p1 = new THREE.Vector3( -100, 0, 100 );
+                var p2 = new THREE.Vector3(  100, 0, -100 );
+                geometry.vertices.push(p1);
+                geometry.vertices.push(p2);
+                geometry.colors.push( color1, color2 );
+
+                var line = new THREE.Line( geometry, material, THREE.LinePieces );
+                scene.add(line);
+            }
+			
+			//渲染操作
+            function render()
+            {
+                renderer.clear();
+                renderer.render(scene, camera);
+                requestAnimationFrame(render);
+            }
+			
+			//调用函数
+            function threeStart() {
+                initThree();
+                initCamera();
+                initScene();
+                initLight();
+                initObject();
+                render();
+            }
+
+		</script>
+	</head>
+
+	<body onload="threeStart();">
+		<div id="canvas-frame"></div>
+	</body>
+</html>

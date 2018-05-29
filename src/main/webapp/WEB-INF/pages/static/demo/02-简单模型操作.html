@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+    <style type="text/css">
+        #main{position: relative;width: 100%;height: 900px;cursor: pointer;background-color: #EEEEEE;border: none;}
+        .skin{position: absolute;width: 100px;border: 1px solid gray;padding: 2px;visibility: hidden;color: #FF0000;background-color: #fcfff2;}
+        div.item {margin: 1px 0;color: #004f9e}
+        div.item:hover {background-color: #c0c0c0;}
+    </style>
+</head>
+<body onload="threeStart();">
+<div id="main">
+    <div style="position: absolute;">
+        <label>A、D按键控制X轴（红色）……</label>
+        <label>W、S按键控制Y轴（蓝色）……</label>
+        <label>Q、E按键控制Z轴（绿色）</label><br/>
+        <label>相机当前X坐标：</label><input type="text" id="positionX"><br/>
+        <label>相机当前Y坐标：</label><input type="text" id="positionY"><br/>
+        <label>相机当前Z坐标：</label><input type="text" id="positionZ"><br/>
+    </div>
+    <div id="itemMenu" class="skin">
+        <div class="item" onclick="javascript:chooseItem();">后退</div>
+        <div class="item" onclick="javascript:chooseItem();">前进</div>
+        <hr>
+        <div class="item" onclick="javascript:chooseItem();">百度</div>
+    </div>
+    <div id="itemMess" class="skin"></div>
+    <canvas id="canvas-frame" style="width: 100%;height: 100%;"></canvas>
+    <!--<div id="canvas-frame" style="width: 100%;height: 100%;"></div>-->
+</div>
+</body>
+<script type="text/javascript" src="js/three.js"></script>
+<script type="text/javascript" src="js/Stats.js"></script>
+<script type="text/javascript" src="js/OrbitControls.js"></script>
+<script type="text/javascript" src="js/jquery-1.9.1.min.js"></script>
+<script type="text/javascript">
+
+    /**
+     * 框架调用函数
+     */
+    function threeStart() {
+        initThree();    //初始化框架渲染器
+        initStats();    //初始化性能测试框
+        initCamera();   //初始化相机
+        initControl();  //初始化相机控件
+        initMouse();    //初始化鼠标设置点击事件
+        initScene();    //初始化场景
+        initLight();    //初始化光源
+        initObject();   //初始化对象（画实物物体）
+        render();       //画布渲染操作
+    }
+
+    var renderer;       //渲染器
+    var canvasWidth;    //画布宽canvas
+    var canvasHeight;   //画布高
+    /**
+     * 初始化框架渲染器
+     */
+    function initThree() {
+        var canvas = document.getElementById('canvas-frame');
+        canvasWidth = canvas.clientWidth;
+        canvasHeight = canvas.clientHeight;
+
+        //使用html5的canvas标签
+        renderer = new THREE.WebGLRenderer({
+            canvas: canvas
+        });
+        renderer.setSize(canvasWidth, canvasHeight);
+        renderer.setClearColor(0xEEEEEE, 1.0); // black
+
+        //定义div时设置
+//        renderer = new THREE.WebGLRenderer({
+//            antialias : true
+//        });
+//        renderer.setSize(canvasWidth, canvasHeight);
+//        canvas.appendChild(renderer.domElement);
+//        renderer.setClearColor(0xEEEEEE, 1.0);
+    }
+
+    var stats;//性能测试框
+    /**
+     * 初始化性能测试框
+     */
+    function initStats() {
+        stats = new Stats();
+        stats.setMode(0);
+        stats.domElement.style.position = 'absolute';
+        stats.domElement.style.right = '0px';
+        stats.domElement.style.top = '0px';
+        document.getElementById('main').appendChild(stats.domElement);
+        return stats;
+    }
+
+    var camera;         //相机
+    /**
+     * 初始化相机
+     */
+    function initCamera() {
+        //透视投影照相机
+        camera = new THREE.PerspectiveCamera(45, canvasWidth / canvasHeight, 1, 10000);
+        camera.position.set(600, 600, 600);
+        camera.up.set(0, 20, 0);
+        camera.lookAt(new THREE.Vector3(0, 0, -500));
+        //正投影照相机
+//        camera = new THREE.OrthographicCamera(canvasWidth/-2,canvasWidth/2,canvasHeight/2,canvasHeight/-2,1,1000);
+//        camera.position.set(0, 0, 600);
+//        camera.up.set(0, 1, 0);
+//        camera.lookAt(new THREE.Vector3(0, 0, 0));
+    }
+
+    var controls;       //相机控件
+    /**
+     * 初始化相机控件
+     */
+    function initControl() {
+        //轨道控件
+        controls = new THREE.OrbitControls(camera, renderer.domElement);
+        controls.addEventListener('change', function(){
+            controls.update();
+        });
+    }
+
+    var intersected;            //鼠标接触的物体
+    var rotationMesh;           //旋转的物体
+    var raycaster;              //射线
+    var mouse;                  //鼠标在坐标系中的位置
+    var mouseSite;              //鼠标在浏览器中的位置
+    var isShowMenu = false;     //菜单是否在显示
+    var isRotation = false;     //是否旋转物体
+    /**
+     * 初始化鼠标，设置点击事件
+     */
+    function initMouse() {
+        raycaster = new THREE.Raycaster();
+        mouse = new THREE.Vector2();
+        mouseSite = new THREE.Vector2();
+        document.addEventListener('mousemove', onDocumentMouseMove, false);
+        document.addEventListener('mousedown', onDocumentMouseDown, false);
+    }
+    //鼠标移动事件
+    function onDocumentMouseMove(event) {
+        event.preventDefault();
+        mouseSite.x = event.clientX;
+        mouseSite.y = event.clientY;
+        mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+        mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+    }
+    //鼠标点击事件
+    function onDocumentMouseDown(event) {
+        if (intersected) {
+            event.preventDefault();
+            //鼠标按下代码0-左键；1-滑轮；2-右键
+            var mouseDown = event.button;
+            //定义鼠标点击物体的操作
+            if (mouseDown == 0) {
+                //按下左键
+                console.log(mouseDown + "-按下左键");
+                if (rotationMesh) isRotation = isRotation ? false : true;
+            } else if (mouseDown == 1) {
+                //按下滑轮
+                console.log(mouseDown + "-按下滑轮");
+                visibleDiv("itemMenu", false);
+                isShowMenu = true;
+            } else if (mouseDown == 2) {
+                //按下右键
+                console.log(mouseDown + "-按下右键");
+                visibleDiv("itemMenu", true);
+                visibleDiv("itemMess", false);
+            }
+        } else {
+            visibleDiv("itemMenu", false);
+        }
+    }
+    /**
+     * 显示div
+     * @divName
+     * @flag    true-显示；false-不显示
+     */
+    function visibleDiv(divName, flag) {
+        var visibility = flag ? "visible" : "hidden";
+        $("#" + divName).css("visibility", visibility);
+        $("#" + divName).css("top", mouseSite.y);
+        $("#" + divName).css("left", mouseSite.x);
+        if (divName == "itemMenu") {
+            isShowMenu = flag;
+        }
+    }
+    /**
+     * 菜单点击事件
+     */
+    function chooseItem() {
+        console.log("菜单操作");
+        visibleDiv("itemMenu", false);
+    }
+
+    var scene;          //场景
+    /**
+     * 初始化场景
+     */
+    function initScene() {
+        scene = new THREE.Scene();
+        // 显示坐标轴
+        var axes = new THREE.AxisHelper(1000);
+        scene.add(axes);
+    }
+
+    var light;          //光源
+    /**
+     * 初始化光源
+     */
+    function initLight() {
+        //创建红色环境光
+        light = new THREE.AmbientLight("#FF0000");
+        light.position.set(100, 100, 200);
+        scene.add(light);
+        //黄光
+        light = new THREE.PointLight("#00FF00");
+        light.position.set(0, 0, 300);
+        scene.add(light);
+    }
+
+    var cube;           //景物
+    /**
+     * 初始化对象（画实物物体）
+     */
+    function initObject() {
+
+        /**
+         * 画一条颜色逐渐变化的线条
+         */
+//        var geometry = new THREE.Geometry(); //几何体对象
+//        var material = new THREE.LineBasicMaterial({vertexColors: THREE.VertexColors}); //线条材质
+//        geometry.colors.push(new THREE.Color(0x444444), new THREE.Color(0xFF0000));//线的材质可以由2点的颜色决定
+//        geometry.vertices.push(new THREE.Vector3(-1000, 0, 0));
+//        geometry.vertices.push(new THREE.Vector3(1000, 0, 0));
+//        var line = new THREE.Line( geometry, material);
+//        scene.add(line);
+
+        /**
+         * 画棋盘
+         */
+//        var geometry = new THREE.Geometry(); //几何体对象
+//        var material = new THREE.LineBasicMaterial({vertexColors: THREE.VertexColors}); //材质
+//        geometry.colors.push(new THREE.Color(0x444444), new THREE.Color(0xFF0000));
+//        geometry.vertices.push(new THREE.Vector3(-500, 0, 0));
+//        geometry.vertices.push(new THREE.Vector3(500, 0, 0));
+//        for (var i = 0; i < 21; i++) {
+//            var line = new THREE.Line(geometry, material);
+//            line.position.z = (i * 50) - 500;//z轴移动
+//            scene.add(line);
+//
+//            line = new THREE.Line(geometry, material);
+//            line.rotation.y = 90 * Math.PI / 180;//旋转90度
+//            line.position.x = (i * 50) - 500;//x轴移动
+//            scene.add(line);
+//
+//        }
+
+        /**
+         * 画圆台
+         */
+//        var geometry = new THREE.CylinderGeometry(70,100,200);
+//        var material = new THREE.MeshLambertMaterial( {color:0xFFFFFF} );
+//        var mesh = new THREE.Mesh(geometry, material);
+//        mesh.position = new THREE.Vector3(0,0,0);
+//        scene.add(mesh);
+
+
+        var geometry = new THREE.CubeGeometry(200, 100, 50);
+        //图片渲染
+//        var texture = THREE.ImageUtils.loadTexture("/pages/static/master/assets/textures/general/bathroom.jpg");
+//        console.log(texture);
+//        var material = new THREE.MeshPhongMaterial({color:"#FF0000", map: texture});
+
+        var material = new THREE.MeshLambertMaterial({color:"#FFFF00"});
+        cube = new THREE.Mesh(geometry, material);
+        cube.userData = "json1";
+        cube.name = "对象";
+        cube.position.set(0,0,0);
+        scene.add(cube);
+
+        geometry = new THREE.CubeGeometry(200, 100, 50);
+        material = new THREE.MeshLambertMaterial({color:0xFFFF00});
+        cube = new THREE.Mesh(geometry,material);
+        cube.userData = "json2";
+        cube.name = "对象";
+        cube.position.set(-300,0,0);
+        scene.add(cube);
+
+        geometry = new THREE.CubeGeometry(200, 100, 50);
+        material = new THREE.MeshLambertMaterial({color:0xFFFF00});
+        cube = new THREE.Mesh(geometry,material);
+        cube.userData = "json3";
+        cube.name = "对象";
+        cube.position.set(0,-150,0);
+        scene.add(cube);
+
+    }
+
+    /**
+     * 画布渲染操作
+     */
+    function render() {
+        //定义鼠标接触物体的相关操作
+        raycaster.setFromCamera(mouse, camera);
+        var intersects = raycaster.intersectObjects(scene.children, true);
+        if (intersects.length > 0) {
+            //鼠标接触物体
+            if (intersected != intersects[0].object) {
+                //物体变红
+                if (intersected) intersected.material.color.setHex(intersected.currentHex);
+                intersected = intersects[0].object;
+                intersected.currentHex = intersected.material.color.getHex();
+                intersected.material.color.set(0xff0000);
+
+                if (intersected.name == "对象") {
+                    //定义旋转物体
+                    rotationMesh = intersected;
+                    //提示信息
+                    if (!isShowMenu) {
+                        visibleDiv("itemMess", true);
+                        $("#itemMess").html(intersected.userData);
+                    } else {
+                        visibleDiv("itemMess", false);
+                    }
+                }
+            }
+        } else {
+            if (intersected) intersected.material.color.set(intersected.currentHex);
+            intersected = null;
+            visibleDiv("itemMess", false);
+        }
+
+        renderer.clear();
+        //更新状态值
+        stats.update();
+        if (rotationMesh && isRotation) {
+            //旋转
+            rotationMesh.rotation.x += 0.03;
+            rotationMesh.rotation.y += 0.03;
+            rotationMesh.rotation.z += 0.03;
+        }
+        requestAnimationFrame(render);
+        renderer.render(scene, camera);
+        inputValue();
+    }
+
+    /**
+     * 设置当前位置显示在文本框中
+     */
+    function inputValue() {
+        document.getElementById("positionX").value = camera.position.x;
+        document.getElementById("positionY").value = camera.position.y;
+        document.getElementById("positionZ").value = camera.position.z;
+    }
+
+    /********************************自定义键盘操作********************************/
+
+    //相机移动速度
+    var speed = 10;
+
+    /**
+     * 键盘控制事件
+     */
+    document.onkeydown = function (e) {
+        e = window.event || e;
+        var pressCode = e.keyCode;  //按下按键的code值
+        if (pressCode == 87) {//W按键y+
+            positionChange("y", true);
+        } else if (pressCode == 83) {//S按键y-
+            positionChange("y", false);
+        } else if (pressCode == 65) {//A按键x+
+            positionChange("x", true);
+        } else if (pressCode == 68) {//D按键x-
+            positionChange("x", false);
+        } else if (pressCode == 81) {//Q按键z+
+            positionChange("z", true);
+        } else if (pressCode == 69) {//E按键z-
+            positionChange("z", false);
+        }
+        //显示坐标
+        inputValue();
+    }
+
+    /**
+     * 相机位置坐标变化方法
+     * @change  需要变化的坐标
+     * @isAdd   是否相加还是相减
+     */
+    function positionChange(change, isAdd) {
+        if (isAdd) {
+            camera.position[change] = camera.position[change] + speed;
+        } else {
+            camera.position[change] = camera.position[change] - speed;
+        }
+        renderer.render(scene, camera);
+    }
+
+</script>
+</html>
