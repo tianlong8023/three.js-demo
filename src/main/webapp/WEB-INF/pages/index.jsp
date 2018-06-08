@@ -1,4 +1,6 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<c:set var="smvc" value="${pageContext.request.contextPath}" />
 <html>
 <head>
     <title>learn Three.js</title>
@@ -196,15 +198,15 @@
     </div>
 </div>
 </body>
-<script src="../pages/static/layer/jquery-1.9.1.min.js"></script>
-<script src="../pages/static/layer/layer.js"></script>
+<script src="${smvc}/pages/static/layer/jquery-1.9.1.min.js"></script>
+<script src="${smvc}/pages/static/layer/layer.js"></script>
 <script type="text/javascript">
 
     /**
      * 章节案例点击事件
      */
     function chooseItem(item, page) {
-        var url = "/pages/static/master/chapter-" + item + "/" + page +".html";
+        var url = "${smvc}/pages/static/master/chapter-" + item + "/" + page +".html";
         openLayer(url);
     }
 
@@ -212,7 +214,7 @@
      * demo点击事件
      */
     function chooseDemo(page) {
-        var url = "/pages/static/demo/" + page + ".html";
+        var url = "${smvc}/pages/static/demo/" + page + ".html";
         openLayer(url);
     }
 
@@ -220,7 +222,7 @@
      * doc点击事件
      */
     function chooseDOC(page) {
-        var url = "/pages/static/DOC/" + page;
+        var url = "${smvc}/pages/static/DOC/" + page;
         openLayer(url);
     }
 
