@@ -13,4 +13,4 @@ Three.js 是一款运行在浏览器中的 3D 引擎，你可以用它创建各�
 原作名: Learning Three.js:The JavaScript 3D Library for WebGL
 译者: 李鹏程 
  - 演示地址
- [three.js-demo演示地址](http://47.96.101.254:8083/three-js/)
+ [three.js-demo演示地址](http://47.96.101.254/three-js/)

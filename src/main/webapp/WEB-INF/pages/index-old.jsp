@@ -1,3 +1,6 @@
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<c:set var="smvc" value="${pageContext.request.contextPath}" />
 <html>
 <head>
     <title>learn Three.js</title>
@@ -8,10 +11,18 @@
         div.item {margin: 1px 0;color: #004f9e;}
         div.item:hover {background-color: #c0c0c0;}
     </style>
+    <link rel="stylesheet" type="text/css" href="${smvc}/pages/static/css/common.css" />
 </head>
 <body>
 <div id="threeDimensional">
-    <h1 align="center">Three.js开发指南-章节案例</h1>
+    <header class="codrops-header">
+        <nav class="codrops-demos">
+            <a class="link" href="http://47.96.101.254">首页</a>
+            <a class="link" href="${smvc}/new">new page</a>
+            <a class="current-demo link" href="javascript:;">learn Three.js开发指南</a>
+        </nav>
+    </header>
+    <h2 align="center">Three.js开发指南-章节案例</h2>
     <div class="skin">
         <h5 align="center">第一章</h5>
         <div class="item" onclick="javascript:chooseItem('01', '01-basic-skeleton');">01-basic-skeleton</div>
@@ -195,15 +206,15 @@
     </div>
 </div>
 </body>
-<script src="../pages/static/layer/jquery-1.9.1.min.js"></script>
-<script src="../pages/static/layer/layer.js"></script>
+<script src="${smvc}/pages/static/layer/jquery-1.9.1.min.js"></script>
+<script src="${smvc}/pages/static/layer/layer.js"></script>
 <script type="text/javascript">
 
     /**
      * 章节案例点击事件
      */
     function chooseItem(item, page) {
-        var url = "../pages/static/master/chapter-" + item + "/" + page +".html";
+        var url = "${smvc}/pages/static/master/chapter-" + item + "/" + page +".html";
         openLayer(url);
     }
 
@@ -211,7 +222,7 @@
      * demo点击事件
      */
     function chooseDemo(page) {
-        var url = "../pages/static/demo/" + page + ".html";
+        var url = "${smvc}/pages/static/demo/" + page + ".html";
         openLayer(url);
     }
 
@@ -219,7 +230,7 @@
      * doc点击事件
      */
     function chooseDOC(page) {
-        var url = "../pages/static/DOC/" + page;
+        var url = "${smvc}/pages/static/DOC/" + page;
         openLayer(url);
     }
 
