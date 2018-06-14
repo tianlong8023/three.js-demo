@@ -5,7 +5,7 @@
 <head>
     <title>learn Three.js</title>
     <style type="text/css">
-        #threeDimensional{position: relative;width: 100%;height: 100%;cursor: pointer;background-color: #EEEEEE;border: none;overflow: auto;}
+        #threeDimensional{position: relative;width: 100%;height: 95%;cursor: pointer;background-color: #EEEEEE;border: none;overflow: auto;}
         .skin{position: absolute;width: 290px;border: 1px solid gray;padding: 2px;visibility: visible;color: #FF0000;
             background-color: #fcfff2;margin: 30px;}
         div.item {margin: 1px 0;color: #004f9e;}
@@ -13,18 +13,19 @@
     </style>
     <link rel="stylesheet" type="text/css" href="${smvc}/pages/static/css/common.css" />
 </head>
-<body>
+<body style="margin: 0px;">
+<header class="codrops-header">
+    <nav class="codrops-demos">
+        <a class="link" href="http://47.96.101.254">首页</a>
+        <a class="link" href="https://github.com/tianlong8023/three.js-demo">gitHub</a>
+        <a class="link" href="https://gitee.com/skyliu625/three.js-demo">码云</a>
+        <a class="link" href="${smvc}/new">new page</a>
+        <a class="current-demo link" href="javascript:;">learn Three.js开发指南</a>
+    </nav>
+</header>
+
 <div id="threeDimensional">
-    <header class="codrops-header">
-        <nav class="codrops-demos">
-            <a class="link" href="http://47.96.101.254">首页</a>
-            <a class="link" href="https://github.com/tianlong8023/three.js-demo">gitHub</a>
-            <a class="link" href="https://gitee.com/skyliu625/three.js-demo">码云</a>
-            <a class="link" href="${smvc}/new">new page</a>
-            <a class="current-demo link" href="javascript:;">learn Three.js开发指南</a>
-        </nav>
-    </header>
-    <h2 align="center">Three.js开发指南-章节案例</h2>
+    <h1 align="center">Three.js开发指南-章节案例</h1>
     <div class="skin">
         <h5 align="center">第一章</h5>
         <div class="item" onclick="javascript:chooseItem('01', '01-basic-skeleton');">01-basic-skeleton</div>
