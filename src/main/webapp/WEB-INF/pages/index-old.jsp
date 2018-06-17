@@ -16,9 +16,9 @@
 <body style="margin: 0px;">
 <header class="codrops-header">
     <nav class="codrops-demos">
-        <a class="link" href="http://47.96.101.254">首页</a>
-        <a class="link" href="https://github.com/tianlong8023/three.js-demo">gitHub</a>
-        <a class="link" href="https://gitee.com/skyliu625/three.js-demo">码云</a>
+        <a class="link" href="http://www.skyliu.club" target="view_window">首页</a>
+        <a class="link" href="https://github.com/tianlong8023/three.js-demo" target="view_window">gitHub</a>
+        <a class="link" href="https://gitee.com/skyliu625/three.js-demo" target="view_window">码云</a>
         <a class="link" href="${smvc}/new">new page</a>
         <a class="current-demo link" href="javascript:;">learn Three.js开发指南</a>
     </nav>
