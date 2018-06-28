@@ -67,7 +67,7 @@
     </dependencies>
 
     <build>
-        <finalName>THREE-JS</finalName>
+        <finalName>three-js</finalName>
         <plugins>
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
